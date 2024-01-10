@@ -33,7 +33,7 @@ public class FilterTaskAuth extends OncePerRequestFilter{
     }
 
     private boolean isTaskEndpoint(String servletPath) {
-        return servletPath.equals("/tasks/");
+        return servletPath.startsWith("/tasks/");
     }
 
     private void processTaskEndpoint(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
