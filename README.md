@@ -1,4 +1,4 @@
-# Minicurso Java (API)
+# Java Minicourse - TODO LIST (API)
 
 ![Banner](.github/banner.png)
 
@@ -12,15 +12,15 @@ This project is a Spring Boot and Java application for managing users and tasks.
 
 [User]
 - [X] CREATE User
-- [] READ   User
-- [] UPDATE User
-- [] DELETE User
+- [ ] READ   User
+- [ ] UPDATE User
+- [ ] DELETE User
 
 [Tasks]
 - [X] CREATE Task
 - [X] READ   Task
 - [X] UPDATE Task
-- [] DELETE Task
+- [ ] DELETE Task
 
 ## DEMO
 
@@ -108,7 +108,7 @@ docker build -t todolist:rocketseat .
 docker run -p 8081:8081 todolist:rocketseat
 ```
 
-Access[http://localhost:8081](http://localhost:8081) and 😝 Enjoy!!
+Access [http://localhost:8081](http://localhost:8081) and 😝 Enjoy!!
 
 ### Development
 
@@ -118,11 +118,74 @@ To start the project run local:
 mvn spring-boot:run
 ```
 
-Access[http://localhost:8081](http://localhost:8081) and 😝 Enjoy!!
+Access [http://localhost:8081](http://localhost:8081) and 😝 Enjoy!!
 
 ## What I Learned with This Project?
 
+### POM.XML
 
+I learned that the `pom.xml` file is a dependency manager and basic configuration file for the `Spring Boot` project. It also serves to generate the final `.jar` file with the compressed project.
+
+### Application Properties
+
+I learned that it is possible to perform some database, server port configurations using the `application.properties` file
+
+```
+server.port=8081
+
+spring.datasource.url=jdbc:h2:mem:todolist
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=admin
+spring.datasource.password=admin
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+```
+
+### Struct Objects
+
+I learned that it is common in Spring Boot to separate responsibilities into Repository, Controller, Model. I used this for users and tasks.
+
+### Filter
+
+I learned how to use filter in Java to control basic user authentication, with username and password.
+
+```java
+@Component
+public class FilterTaskAuth extends OncePerRequestFilter{
+
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String servletPath = request.getServletPath();
+
+        if (isTaskEndpoint(servletPath)) {
+            processTaskEndpoint(request, response, filterChain);
+        } else {
+            filterChain.doFilter(request, response);
+        }
+    }
+    ...
+}
+```
+
+### Handlers Errors
+
+I learned how to create a custom error hadle.
+
+```java
+@ControllerAdvice
+public class ExceptionHandleController {
+    
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMostSpecificCause().getMessage());
+    }
+}
+
+```
 
 ## Acknowledgment
 
