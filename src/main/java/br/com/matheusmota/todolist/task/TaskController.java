@@ -2,6 +2,7 @@ package br.com.matheusmota.todolist.task;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.matheusmota.todolist.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
@@ -57,8 +57,23 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskModel update(@RequestBody TaskModel  taskModel, HttpServletRequest request, @PathVariable UUID id) {
-        taskModel.setId(id);
-        return this.taskRepository.save(taskModel);
+    public ResponseEntity update(@RequestBody TaskModel  taskModel, @PathVariable UUID id, HttpServletRequest request) {
+        
+        var task = this.taskRepository.findById(id).orElse(null);
+
+        if(task == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa não encontrada");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if(!task.getIdUser().equals(idUser)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuário não tem permissão para alterar essa tarefa");
+        }
+        Utils.copyNonNullProperties(taskModel, task);
+
+        var taskUpdated = this.taskRepository.save(task);
+
+        return ResponseEntity.ok().body(taskUpdated);
     }
 }
